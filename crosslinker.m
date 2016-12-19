@@ -1,5 +1,6 @@
 clear
 clc
+% Build diamond structure
 load('A.mat')
 A =[A;A+repmat([0 0 1],size(A,1),1)];
 A =[A;A+repmat([0 1 0],size(A,1),1)];
@@ -11,38 +12,34 @@ for i =size(B,1):-1:1
         B(i,:)=[];
     end
 end
+AB =[A;B];
+
 NUMBER_BIS = 8;
-MIN_DISTANCE = 0.5;
-crosslink =[];
+MIN_RADIUS = 0.54;
+
+% positions are available
+avaA = 1:size(A,1);
+avaB = size(A,1)+1:size(AB,1);
 for j = 1:2:NUMBER_BIS
-    newcross = A(randi(size(A,1)),:);
-    k = 1;
-    while k <= size(crosslink,1)
-       if norm(newcross-crosslink(k,:))<MIN_DISTANCE
-          newcross = A(randi(size(A,1)),:);
-          k = 1;
-          continue;
-       end
-       k = k+1;
+    if length(avaA)==0
+        break;
     end
-    crosslink(j,:) = newcross;
-    newcross = B(randi(size(B,1)),:);
-    k = 1;
-    while k <= size(crosslink,1)
-       if norm(newcross-crosslink(k,:))<MIN_DISTANCE
-          newcross = B(randi(size(B,1)),:);
-          k = 1;
-          continue;
-       end
-       k = k+1;
+    newcross = avaA(randi(length(avaA)));
+    lst(j) = newcross;
+    [avaA,avaB] = renew_ava_list( AB,avaA,avaB,newcross,MIN_RADIUS*2);
+    if length(avaB)==0
+        break;
     end
-    crosslink(j+1,:) = newcross;
+    newcross = avaB(randi(length(avaB)));
+    lst(j+1) = newcross;
+    [avaA,avaB] = renew_ava_list( AB,avaA,avaB,newcross,MIN_RADIUS*2);
+end
+if length(lst)<8
+    errordlg('not enough space','error')
 end
 
-crosslink
-
 [x,y,z] = sphere;
-for l = 1:length(crosslink)
-    surf(MIN_DISTANCE*x+crosslink(l,1),MIN_DISTANCE*y+crosslink(l,2),MIN_DISTANCE*z+crosslink(l,3));
+for l = 1:length(lst)
+    surf(MIN_RADIUS*x+AB(lst(l),1),MIN_RADIUS*y+AB(lst(l),2),MIN_RADIUS*z+AB(lst(l),3));
     hold on
 end
