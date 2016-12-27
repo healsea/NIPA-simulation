@@ -10,9 +10,10 @@ CC_BOND =0.154;
 
 % diamond direction
 dir = [0,0,1;0,sqrt(8)/3,-1/3;sqrt(6)/3,-sqrt(2)/3,-1/3;-sqrt(6)/3,-sqrt(2)/3,-1/3];
-dir = [dir;-dir]*CC_BOND;
+dir = dir*CC_BOND;
+%dir = [dir;-dir]*CC_BOND;
 
-bis_pos = [BOX_SIZE/3 BOX_SIZE/3 BOX_SIZE/3;2*BOX_SIZE/3 BOX_SIZE/3 BOX_SIZE/3;BOX_SIZE/3 2*BOX_SIZE/3 BOX_SIZE/3;BOX_SIZE/3 BOX_SIZE/3 2*BOX_SIZE/3;2*BOX_SIZE/3 2*BOX_SIZE/3 BOX_SIZE/3;2*BOX_SIZE/3 BOX_SIZE/3 2*BOX_SIZE/3;BOX_SIZE/3 2*BOX_SIZE/3 2*BOX_SIZE/3;2*BOX_SIZE/3 2*BOX_SIZE/3 2*BOX_SIZE/3];
+bis_pos = [BOX_SIZE/4 BOX_SIZE/4 BOX_SIZE/4;3*BOX_SIZE/4 BOX_SIZE/4 BOX_SIZE/4;BOX_SIZE/4 3*BOX_SIZE/4 BOX_SIZE/4;BOX_SIZE/4 BOX_SIZE/4 3*BOX_SIZE/4;3*BOX_SIZE/4 3*BOX_SIZE/4 BOX_SIZE/4;3*BOX_SIZE/4 BOX_SIZE/4 3*BOX_SIZE/4;BOX_SIZE/4 3*BOX_SIZE/4 3*BOX_SIZE/4;3*BOX_SIZE/4 3*BOX_SIZE/4 3*BOX_SIZE/4];
 scatter3(bis_pos(:,1),bis_pos(:,2),bis_pos(:,3),'bo');
 xlim([0,BOX_SIZE]);
 ylim([0,BOX_SIZE]);
@@ -61,14 +62,14 @@ ini = randi(NUMBER_BIS*2);
 start = bis_p(ini,:);
 % previous to ensure the atom goes the right direction. IF here we choose
 % previous as the atom connected to the knot, it would be better
-previous = start;
+% previous = start;
 NIPA = start;
 while true
-    next = start + dir(randi(8),:);
-    % ensure the atom goes the right direction
-    if (norm(previous - start) ~=0) & (norm(next-previous)>1.9*CC_BOND || norm(next-previous)<1.4*CC_BOND) 
-        continue;
-    end
+    next = start + dir(randi(4),:);
+%     % ensure the atom goes the right direction
+%     if (norm(previous - start) ~=0) & (norm(next-previous)>1.9*CC_BOND || norm(next-previous)<1.4*CC_BOND) 
+%         continue;
+%     end
 
     % new position may exceed box
     next = mod(next , BOX_SIZE);
@@ -95,7 +96,7 @@ while true
     line(draw(1,:),draw(2,:),draw(3,:));
     pause(0.3);
     NIPA =[NIPA;next];
-    previous = start;
+    %previous = start;
     start = next;
 
 end
