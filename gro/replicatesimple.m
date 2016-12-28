@@ -52,7 +52,7 @@ molecule_name1 = B.textdata{1,1}(2:end);
 active_atom =[];
 
 
-formatSpec = '%5i%s%5s%8i%8.3f%8.3f%8.3f\n';
+formatSpec = '%5i%s%5s%5i%8.3f%8.3f%8.3f\n';
 fileID = fopen(outname,'a');
 fprintf(fileID,'%s\n',outname);
 % fprintf(fileID,'%5i\n',NUMBER_REPLICATE*number_atom);
@@ -101,7 +101,7 @@ for i = 1:size(pair,1)
     for j = 1: floor(norm(nipa_between_pair)/NIPA_DISTANCE/2)
         nipa1 = active_atom(pair(i,1),:) + (2*j - 1)*nipa_between_pair/norm(nipa_between_pair)*NIPA_DISTANCE;
         nipa2 = nipa1 + nipa_between_pair/norm(nipa_between_pair)*NIPA_DISTANCE;
-        new_pos = nipa_pos(nipa1,nipa2,n_pos);
+        new_pos = nipa_pos(nipa1,nipa2,n_pos,mod(j,2));
         IIN = IIN+1;
         for k = 1:number_atom1
         % atom name
