@@ -26,7 +26,7 @@ NUMBER_REPLICATE = size(AB,1);
 
 inname = 'bis.gro';
 inname1 = 'nipa.gro';
-outname = 'bis1.gro';
+outname = 'bis2.gro';
 
 % read in original bis coordinate
 delimiterIn = ' ';
@@ -80,7 +80,7 @@ fclose(fileID);
 
 
 %build BIS carbon atom pairs
-%% 这里的�?路是通过判断碳原子间距来找连接的pair，我发现每一个分子能连四个分子，其中每一个分子的两个原子能连两个，于是�?择它们分别去连距离较小的，�?且发现这个距离为1.15��?.36
+% 这里的�?路是通过判断碳原子间距来找连接的pair，我发现每一个分子能连四个分子，其中每一个分子的两个原子能连两个，于是�?择它们分别去连距离较小的，�?且发现这个距离为1.15��?.36
 pair = [];
 for i = 1:size(active_atom,1)
     for j = i:size(active_atom,1)
@@ -97,10 +97,23 @@ n_pos = B.data(:,2:end);
 IIN = 0;
 fileID = fopen(outname,'a');
 for i = 1:size(pair,1)
+    % direction between BIS
     nipa_between_pair = active_atom(pair(i,2),:)-active_atom(pair(i,1),:);
-    for j = 1: floor(norm(nipa_between_pair)/NIPA_DISTANCE/2)
-        nipa1 = active_atom(pair(i,1),:) + (2*j - 1)*nipa_between_pair/norm(nipa_between_pair)*NIPA_DISTANCE;
-        nipa2 = nipa1 + nipa_between_pair/norm(nipa_between_pair)*NIPA_DISTANCE;
+
+    % number of NIPA per chain
+    nipa_chain = ceil(norm(nipa_between_pair)/NIPA_DISTANCE/2);
+
+    % rotation angle between NIPA chain and BIS direction
+    theta = acos(norm(nipa_between_pair)/((nipa_chain*2+1)*NIPA_DISTANCE));
+    % deviation of NIPA from BIS direction, distance and direction
+    dev_dis = NIPA_DISTANCE*sin(theta);
+    tmp = null(nipa_between_pair);
+    dev_dir = transpose(tmp(:,1));
+
+    for j = 1: nipa_chain
+        nipa1 = active_atom(pair(i,1),:) + (2*j - 1)*nipa_between_pair/(2*nipa_chain+1)+dev_dis*dev_dir;
+        nipa2 = active_atom(pair(i,1),:) + 2*j*nipa_between_pair/(2*nipa_chain+1);
+
         new_pos = nipa_pos(nipa1,nipa2,n_pos,mod(j,2));
         IIN = IIN+1;
         for k = 1:number_atom1
