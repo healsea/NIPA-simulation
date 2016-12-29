@@ -52,8 +52,8 @@ molecule_name1 = B.textdata{1,1}(2:end);
 active_atom =[];
 
 
-formatSpec = '%5i%s%5s%5i%8.3f%8.3f%8.3f\n';
-fileID = fopen(outname,'a');
+formatSpec = '%5i%-5s%5s%5i%8.3f%8.3f%8.3f\n';
+fileID = fopen(outname,'w');
 fprintf(fileID,'%s\n',outname);
 % fprintf(fileID,'%5i\n',NUMBER_REPLICATE*number_atom);
 for i = 1:NUMBER_REPLICATE
@@ -76,9 +76,6 @@ for i = 1:NUMBER_REPLICATE
     end
 end
 
-fclose(fileID);
-
-
 %build BIS carbon atom pairs
 % 这里的�?路是通过判断碳原子间距来找连接的pair，我发现每一个分子能连四个分子，其中每一个分子的两个原子能连两个，于是�?择它们分别去连距离较小的，�?且发现这个距离为1.15��?.36
 pair = [];
@@ -95,7 +92,6 @@ end
 n_pos = B.data(:,2:end);
 
 IIN = 0;
-fileID = fopen(outname,'a');
 for i = 1:size(pair,1)
     % direction between BIS
     nipa_between_pair = active_atom(pair(i,2),:)-active_atom(pair(i,1),:);
