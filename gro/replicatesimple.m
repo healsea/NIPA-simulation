@@ -123,5 +123,5 @@ for i = 1:size(pair,1)
         end
     end
 end
-fprintf(fileID,'%10.5f%10.5f%10.5f\n',0,0,0);
+fprintf(fileID,'%10.5f%10.5f%10.5f\n',LENGTH_STRUCTURE,LENGTH_STRUCTURE,LENGTH_STRUCTURE);
 fclose(fileID);
