@@ -149,4 +149,4 @@ connect_name = 'connect.txt';
 formatSpec1 = '%5d%5d%5d%5d\n';
 fileID = fopen(connect_name,'w');
 %fprintf(fileID,'%5s%5s%5s%5s\n','mol num1 ','atom num1 ','mol num2 ','atom num2 ');
-fprintf(fileID,formatSpec1,connect_pair');
+fclose(fileID);
