@@ -20,7 +20,7 @@ for i =size(B,1):-1:1
     end
 end
 AB =[A;B];
-AB =AB+repmat([-0.5 -0.5 -0.5],size(AB,1),1);
+% AB =AB+repmat([-0.5 -0.5 -0.5],size(AB,1),1);
 AB = AB*LENGTH_STRUCTURE;
 NUMBER_REPLICATE = size(AB,1);
 
