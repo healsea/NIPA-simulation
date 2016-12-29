@@ -79,7 +79,7 @@ for i = 1:NUMBER_REPLICATE
 end
 
 %build BIS carbon atom pairs
-% 这里的�?路是通过判断碳原�?间�?�?�找连接的pair，我�?�现�?一个分�?能连四个分�?，其中�?一个分�?的两个原�?能连两个，于是�?择它们分别去连�?离较�?的，�?且�?�现这个�?离为1.15��?.36
+% è¿™é‡Œçš„ï¿½?è·¯æ˜¯é€šè¿‡åˆ¤æ–­ç¢³åŽŸå­?é—´è·?æ?¥æ‰¾è¿žæŽ¥çš„pairï¼Œæˆ‘å?‘çŽ°æ¯?ä¸€ä¸ªåˆ†å­?èƒ½è¿žå››ä¸ªåˆ†å­?ï¼Œå…¶ä¸­æ¯?ä¸€ä¸ªåˆ†å­?çš„ä¸¤ä¸ªåŽŸå­?èƒ½è¿žä¸¤ä¸ªï¼ŒäºŽæ˜¯ï¿½?æ‹©å®ƒä»¬åˆ†åˆ«åŽ»è¿žè·?ç¦»è¾ƒå°?çš„ï¼Œï¿½?ä¸”å?‘çŽ°è¿™ä¸ªè·?ç¦»ä¸º1.15ï¿½ï¿½?.36
 pair = [];
 for i = 1:size(active_atom,1)
     for j = i:size(active_atom,1)
@@ -121,11 +121,12 @@ for i = 1:size(pair,1)
 
         new_pos = nipa_pos(nipa1,nipa2,n_pos,mod(j,2));
         IIN = IIN+1;
+        II = II+1;
         
         %store nipa1 into connect pair and nipa2 into following connect pair
-        connect_pair(connect_num,3:4) = [IIN, 8 + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom];
+        connect_pair(connect_num,3:4) = [II, 8 + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom];
         connect_num = connect_num+1;
-        connect_pair(connect_num,1:2) = [IIN, 9 + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom];
+        connect_pair(connect_num,1:2) = [II, 9 + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom];
 
 
         for k = 1:number_atom1
@@ -135,7 +136,7 @@ for i = 1:size(pair,1)
         orderN = k + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom;
 
         % output
-        fprintf(fileID,formatSpec,IIN,molecule_name1,atomN,orderN,new_pos(k,:));
+        fprintf(fileID,formatSpec,II,molecule_name1,atomN,orderN,new_pos(k,:));
         end
     end
     connect_pair(connect_num,3:4) = connect_tmp(pair(i,2),:);
