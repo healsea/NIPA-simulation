@@ -50,7 +50,7 @@ molecule_name1 = B.textdata{1,1}(2:end);
 
 % store coordinate of carbon atoms that will connect to NIPA
 active_atom =[];
-
+connect_tmp = [];
 
 formatSpec = '%5i%-5s%5s%5i%8.3f%8.3f%8.3f\n';
 fileID = fopen(outname,'w');
@@ -69,6 +69,8 @@ for i = 1:NUMBER_REPLICATE
     % store active carbon atoms
     if j == 1 || j == number_atom
         active_atom =[active_atom;pos']; %'
+        %use for connect pair
+        connect_tmp = [connect_tmp;II,order];
     end
 
     % output
@@ -77,7 +79,7 @@ for i = 1:NUMBER_REPLICATE
 end
 
 %build BIS carbon atom pairs
-% 这里的�?路是通过判断碳原子间距来找连接的pair，我发现每一个分子能连四个分子，其中每一个分子的两个原子能连两个，于是�?择它们分别去连距离较小的，�?且发现这个距离为1.15��?.36
+% 这里的�?路是通过判断碳原�?间�?�?�找连接的pair，我�?�现�?一个分�?能连四个分�?，其中�?一个分�?的两个原�?能连两个，于是�?择它们分别去连�?离较�?的，�?且�?�现这个�?离为1.15��?.36
 pair = [];
 for i = 1:size(active_atom,1)
     for j = i:size(active_atom,1)
@@ -91,6 +93,10 @@ end
 % put NIPA
 n_pos = B.data(:,2:end);
 
+% store the connect pair of atoms
+connect_pair = [];
+connect_num = 0;
+
 IIN = 0;
 for i = 1:size(pair,1)
     % direction between BIS
@@ -101,27 +107,45 @@ for i = 1:size(pair,1)
 
     % rotation angle between NIPA chain and BIS direction
     theta = acos(norm(nipa_between_pair)/((nipa_chain*2+1)*NIPA_DISTANCE));
+
     % deviation of NIPA from BIS direction, distance and direction
     dev_dis = NIPA_DISTANCE*sin(theta);
     tmp = null(nipa_between_pair);
     dev_dir = transpose(tmp(:,1));
 
+    connect_num = connect_num+1;
+    connect_pair(connect_num,1:2) = connect_tmp(pair(i,1),:);
     for j = 1: nipa_chain
         nipa1 = active_atom(pair(i,1),:) + (2*j - 1)*nipa_between_pair/(2*nipa_chain+1)+dev_dis*dev_dir;
         nipa2 = active_atom(pair(i,1),:) + 2*j*nipa_between_pair/(2*nipa_chain+1);
 
         new_pos = nipa_pos(nipa1,nipa2,n_pos,mod(j,2));
         IIN = IIN+1;
+        
+        %store nipa1 into connect pair and nipa2 into following connect pair
+        connect_pair(connect_num,3:4) = [IIN, 8 + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom];
+        connect_num = connect_num+1;
+        connect_pair(connect_num,1:2) = [IIN, 9 + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom];
+
+
         for k = 1:number_atom1
         % atom name
         atomN = B.textdata{k,2};
         % order of atom
-        orderN = B.data(k,1) + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom;
+        orderN = k + (IIN-1)*number_atom1 + NUMBER_REPLICATE*number_atom;
 
         % output
         fprintf(fileID,formatSpec,IIN,molecule_name1,atomN,orderN,new_pos(k,:));
         end
     end
+    connect_pair(connect_num,3:4) = connect_tmp(pair(i,2),:);
 end
 fprintf(fileID,'%10.5f%10.5f%10.5f\n',LENGTH_STRUCTURE,LENGTH_STRUCTURE,LENGTH_STRUCTURE);
 fclose(fileID);
+
+%output connect pair
+connect_name = 'connect.txt';
+formatSpec1 = '%5d%5d%5d%5d\n';
+fileID = fopen(connect_name,'w');
+%fprintf(fileID,'%5s%5s%5s%5s\n','mol num1 ','atom num1 ','mol num2 ','atom num2 ');
+fprintf(fileID,formatSpec1,connect_pair');
