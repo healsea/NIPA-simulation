@@ -90,21 +90,37 @@ for i = 1:NUMBER_REPLICATE
         if any(i==printmat)
             connect_tmp = [connect_tmp;printII,printorder];
         end
-        if i==2 || i ==3 || i==4
+        if (i==2 | i ==3 | i==4) & j == 1
             connect_tmp = [connect_tmp;connect_tmp(1,:)];
         end
-        if i == 8
-            connect_tmp = [connect_tmp;connect_tmp(6,:)];
+        if (i==2 | i ==3 | i==4) & j ~= 1
+            connect_tmp = [connect_tmp;connect_tmp(2,:)];
         end
-        if i == 9
-            connect_tmp = [connect_tmp;connect_tmp(7,:)];
+        if i == 8 && j == 1
+            connect_tmp = [connect_tmp;connect_tmp(11,:)];
         end
-        if i==10 || i ==11 || i==12 || i==13
+        if i == 8 && j ~= 1
+            connect_tmp = [connect_tmp;connect_tmp(12,:)];
+        end
+        if i == 9 && j == 1
+            connect_tmp = [connect_tmp;connect_tmp(13,:)];
+        end
+        if i == 9 && j ~= 1
+            connect_tmp = [connect_tmp;connect_tmp(14,:)];
+        end
+        if (i==10 | i ==11 | i==12 | i==13) & j == 1
             connect_tmp = [connect_tmp;connect_tmp(1,:)];
         end
-        if i == 14
-            connect_tmp = [connect_tmp;connect_tmp(5,:)];
+        if (i==10 | i ==11 | i==12 | i==13) & j ~= 1
+            connect_tmp = [connect_tmp;connect_tmp(2,:)];
         end
+        if i == 14 && j == 1
+            connect_tmp = [connect_tmp;connect_tmp(9,:)];
+        end
+        if i == 14 && j ~= 1
+            connect_tmp = [connect_tmp;connect_tmp(10,:)];
+        end
+
     end
     end
 end
