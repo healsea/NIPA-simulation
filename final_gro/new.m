@@ -6,13 +6,19 @@ clc
 BIS_DISTANCE = 1.5; % nm
 NIPA_DISTANCE = 0.154;
 LENGTH_STRUCTURE = BIS_DISTANCE/(0.25*sqrt(3));
-SIZE_OF_CELL = 1;
+SIZE_OF_CELL = 3;
 
 % Build diamond structure for BIS to repeat
 % FCC A
 A = [0 0 0;1 0 0;0 1 0;1 1 0;
      0 0 1;1 0 1;0 1 1;1 1 1;
      0.5 0.5 0;0.5 0.5 1;0.5 0 0.5;0.5 1 0.5;0 0.5 0.5;1 0.5 0.5];
+for i = 2:SIZE_OF_CELL
+    A = [A;A+repmat([1 0 0],size(A,1),1)];
+    A = [A;A+repmat([0 1 0],size(A,1),1)];
+    A = [A;A+repmat([0 0 1],size(A,1),1)];
+    A = unique(A,'rows');
+end
 
 % FCC B
 B= A+0.25;
@@ -26,7 +32,7 @@ AB =[A;B];
 
 
 bis_number = size(AB,1);
-new_bis_number = 8;
+new_bis_number = 8*SIZE_OF_CELL^3;
 
 inname = 'bis.gro'; % BIS structure
 inname1 = 'nipa.gro'; % NIPA structure
@@ -96,14 +102,15 @@ end
 % % After deleting the repeated BIS molecule, each active atom will lead to the following index
 % origin2new = [repmat([1;2],8,1);3;4;3;4;5;6;5;6;7;8;7;8;9;10;11;12;13;14;15;16];
 
+
 AB = AB*LENGTH_STRUCTURE;
 %store the BIS coordinate
 for i = 1:bis_number
-	origin_coor = [origin_coor;repmat(AB(i,:),number_bis_atom,1)+one_bis_coor];
-	active_atom = [active_atom;AB(i,:)+one_bis_coor(1,:);AB(i,:)+one_bis_coor(number_bis_atom,:)];
-	if any(i == printmat)
-		new_coor = [new_coor;repmat(AB(i,:),number_bis_atom,1)+one_bis_coor];
-	end
+    origin_coor = [origin_coor;repmat(AB(i,:),number_bis_atom,1)+one_bis_coor];
+    active_atom = [active_atom;AB(i,:)+one_bis_coor(1,:);AB(i,:)+one_bis_coor(number_bis_atom,:)];
+    if any(i == printmat)
+        new_coor = [new_coor;repmat(AB(i,:),number_bis_atom,1)+one_bis_coor];
+    end
 end
 
 %build BIS carbon atom pairs
@@ -144,7 +151,7 @@ for i = 1:size(bis_pair,1)
     
 
     for j = 1: nipa_chain
-    	% generate a new NIPA
+        % generate a new NIPA
         nipa1 = active_atom(bis_pair(i,1),:) + (2*j - 1)*nipa_between_pair/(2*nipa_chain+1)+dev_dis*dev_dir;
         nipa2 = active_atom(bis_pair(i,1),:) + 2*j*nipa_between_pair/(2*nipa_chain+1);
         new_pos = nipa_pos(nipa1,nipa2,one_nipa_coor,mod(j,2));
@@ -172,24 +179,24 @@ fprintf(fileID,'%5i\n',size(origin_coor,1)+size(nipa_coor,1));
 
 atom_index = 0;
 for i = 1:bis_number
-	for j = 1:number_bis_atom
-		atom_index = atom_index + 1;
-		atom_name = bis_info.textdata{j,2};
-		fprintf(fileID,formatSpec,i,bis_molecule_name, ...
-			                        atom_name,atom_index, ...
-			                        origin_coor(atom_index,:));
-	end
+    for j = 1:number_bis_atom
+        atom_index = atom_index + 1;
+        atom_name = bis_info.textdata{j,2};
+        fprintf(fileID,formatSpec,i,bis_molecule_name, ...
+                                    atom_name,atom_index, ...
+                                    origin_coor(atom_index,:));
+    end
 end
 for i = 1:nipa_number
-	for j = 1:number_nipa_atom
-		atom_index = atom_index+1;
-		atom_name = nipa_info.textdata{j,2};
-		fprintf(fileID,formatSpec,i+bis_number,nipa_molecule_name, ...
-			                      atom_name,atom_index, ...
-			                      nipa_coor(atom_index-bis_number*number_bis_atom,:));
-	end
+    for j = 1:number_nipa_atom
+        atom_index = atom_index+1;
+        atom_name = nipa_info.textdata{j,2};
+        fprintf(fileID,formatSpec,i+bis_number,nipa_molecule_name, ...
+                                  atom_name,atom_index, ...
+                                  nipa_coor(atom_index-bis_number*number_bis_atom,:));
+    end
 end
-fprintf(fileID,'%10.5f%10.5f%10.5f\n',LENGTH_STRUCTURE,LENGTH_STRUCTURE,LENGTH_STRUCTURE);
+fprintf(fileID,'%10.5f%10.5f%10.5f\n',LENGTH_STRUCTURE*SIZE_OF_CELL,LENGTH_STRUCTURE*SIZE_OF_CELL,LENGTH_STRUCTURE*SIZE_OF_CELL);
 fclose(fileID);
 
 
@@ -200,22 +207,22 @@ fprintf(fileID,'%5i\n',size(new_coor,1)+size(nipa_coor,1));
 
 atom_index = 0;
 for i = 1:new_bis_number
-	for j = 1:number_bis_atom
-		atom_index = atom_index + 1;
-		atom_name = bis_info.textdata{j,2};
-		fprintf(fileID,formatSpec,i,bis_molecule_name, ...
-			                        atom_name,atom_index, ...
-			                        new_coor(atom_index,:));
-	end
+    for j = 1:number_bis_atom
+        atom_index = atom_index + 1;
+        atom_name = bis_info.textdata{j,2};
+        fprintf(fileID,formatSpec,i,bis_molecule_name, ...
+                                    atom_name,atom_index, ...
+                                    new_coor(atom_index,:));
+    end
 end
 for i = 1:nipa_number
-	for j = 1:number_nipa_atom
-		atom_index = atom_index+1;
-		atom_name = nipa_info.textdata{j,2};
-		fprintf(fileID,formatSpec,i+new_bis_number,nipa_molecule_name, ...
-			                      atom_name,atom_index, ...
-			                      nipa_coor(atom_index-new_bis_number*number_bis_atom,:));
-	end
+    for j = 1:number_nipa_atom
+        atom_index = atom_index+1;
+        atom_name = nipa_info.textdata{j,2};
+        fprintf(fileID,formatSpec,i+new_bis_number,nipa_molecule_name, ...
+                                  atom_name,atom_index, ...
+                                  nipa_coor(atom_index-new_bis_number*number_bis_atom,:));
+    end
 end
 fprintf(fileID,'%10.5f%10.5f%10.5f\n',LENGTH_STRUCTURE*SIZE_OF_CELL,LENGTH_STRUCTURE*SIZE_OF_CELL,LENGTH_STRUCTURE*SIZE_OF_CELL);
 fclose(fileID);
@@ -296,6 +303,7 @@ for i = 1:size(connect_pair,1)
         fprintf(fileID,'%5d\n',connect_pair(i,3));
     end
 end
+fclose(fileID);
 
 connect_name = 'atom.txt';
 fileID = fopen(connect_name,'w');
@@ -306,6 +314,7 @@ for i = 1:size(connect_pair,1)
         fprintf(fileID,'\n');
     end
 end
+fclose(fileID);
 
 connect_name = 'new_mol.txt';
 fileID = fopen(connect_name,'w');
@@ -316,6 +325,7 @@ for i = 1:size(new_connect_pair,1)
         fprintf(fileID,'%5d\n',new_connect_pair(i,3));
     end
 end
+fclose(fileID);
 
 connect_name = 'new_atom.txt';
 fileID = fopen(connect_name,'w');
@@ -326,8 +336,44 @@ for i = 1:size(new_connect_pair,1)
         fprintf(fileID,'\n');
     end
 end
+fclose(fileID);
 
 % outpurt number of BIS and Connection
 connect_name = 'BIS and connection.txt';
 fileID = fopen(connect_name,'w');
 fprintf(fileID,'%d\n%d\n',new_bis_number,size(bis_pair,1));
+fclose(fileID);
+
+% print some useful information
+connect_name = 'information.txt';
+fileID = fopen(connect_name,'w');
+fprintf(fileID,['BIS_DISTANCE: %.2f nm\nUnit of cells: %d\n' ...
+                'number of BIS: %d\nnumber of NIPA: %d\n' ...
+                'Box size: %.2f nm \n'],BIS_DISTANCE,SIZE_OF_CELL,new_bis_number,...
+                nipa_number,SIZE_OF_CELL*LENGTH_STRUCTURE);
+fclose(fileID);
+
+
+% generate poly file
+phns = 'new_mol.txt';
+fpn = fopen (phns, 'rt'); %open file
+
+% poly store the number of NIPA in every chain
+poly_num = 1;
+%poly = zeros(100);
+
+while feof(fpn) ~= 1 % feof is 1 when we reach the end of the file
+     file = fgetl(fpn); % get one line of file
+     num_of_nipa = regexp(file,'\d*\.?\d*','match');  % extract number from the line
+     poly(poly_num) = size(num_of_nipa,2) - 2;
+     poly_num = poly_num + 1;
+end
+fclose(fpn);
+
+connect_name = 'poly.txt';
+fileID = fopen(connect_name,'w');
+
+for i = 1:length(poly)
+    fprintf(fileID,'%5d\n',poly(i));
+end
+fclose(fileID);
